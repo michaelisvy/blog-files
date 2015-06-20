@@ -122,7 +122,7 @@ public @ResponseBody Owner find(@PathVariable Integer id) {
     return this.clinicService.findOwnerById(id);
 }
 ```
-In order for Spring MVC to convert your returned object (which need to be Serializable) to a JSON object, you need to configure your Spring context file to include a conversion service that uses `Jackson2` for JSON serialization. An example of the snippet that performs this Spring context configuration is shown below.
+In order for Spring MVC to convert your returned object (which need to be Serializable) to a JSON object, you can use the Jackson2 serialization library which is part of the Spring MVC dependency. In the example below, we had to customize the date serialization format by Jackson2 so we added the xml snippet in our Spring Context xml file to describe the date format for our JSON ObjectMapper Factory so that it knows that the Jackson2 ObjectMapper requires a date of such format. You can see the snippet that performs this Spring context configuration below. If there's no customization of the date format (or any other serialization requirements), you can use the default ones which means that you do not even need to include this section as Spring MVC by default will component scan the ObjectMapper and inject it into your controller class via autowiring.
 
 
 ```xml
