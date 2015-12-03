@@ -1,7 +1,8 @@
 # Spring Boot without the hype
 
 It is summertime and we are taking it as an opportunity to enhance Spring Boot coverage in our Core-Spring training course.
-In the process, we have had lots of conversations with people getting started to Spring Boot and we realize that some points tend to be misunderstood. Hopefully the below points will help to shed some light. In particular, we will discuss how Spring Boot integrates with existing Java applications (the ones built with ~~Java Config~~ XML, ~~YAML~~ properties files, external containers...)
+In the process, we have had lots of conversations with people who are learning Spring Boot and we have realized that some points tend to be misunderstood.
+Hopefully the below will help to shed some light. In particular, we will discuss how Spring Boot integrates with traditional Java applications (the ones built with ~~Java Config~~ XML, ~~YAML~~ properties files, external containers...)
 
 ## Embedded container... if you'd like
 
