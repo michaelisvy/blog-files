@@ -1,6 +1,6 @@
 # Database schema changes with Spring Boot and Hibernate
 
-## let's refactor!!!!
+## Let's refactor!!!!
 
 When writing applications, we tend to promote practices such as TDD that allow us to be confident when refactoring our code. 
 What about our database? Should we be able to refactor our production database schema in a jiffy, just as easily as we would change a method name? May be not, but let's try to get there!
@@ -18,11 +18,37 @@ spring.datasource.username=santa
 spring.datasource.password=secret
 spring.jpa.hibernate.ddl-auto=update
 ```
-`application-mysql.properties`
 
-## Creating a Database schema using Hibernate’s auto schema generation
-Show application.properties and User class
-Note: DDL stands for Data Definition Language (https://en.wikipedia.org/wiki/Data_definition_language)
+The above example shows our `application-mysql.properties` file. 
+The first 3 lines explain how to connect to MySql. Our password is hardcoded for simplicity sake, but in real life we would store it in a secret.
+The last line shows that the MySql schema should be updated at application startup (to be discussed in the next section). 
+
+
+## Creating a Database schema the simple way
+
+At this stage, our application only has a single entity class called `User`.
+
+```java
+@Entity @Data
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String firstName;
+    private String lastName;
+    private LocalDate dateOfBirth;
+}
+```
+> Note: the @Data annotation comes from [Lombok](https://projectlombok.org/) and auto-generates our getter/setter methods.
+
+As seen in the previous section, we have configured database schema auto-update as follows:
+
+```.properties
+spring.jpa.hibernate.ddl-auto=update
+```
+
+`DDL` stands for [Data Definition Language](https://en.wikipedia.org/wiki/Data_definition_language).
+
 Show create table happening at startup time
 How does it work? The User class has been read and its information (class name, attributes, relationships…) have been used to generate a simple database schema.
 
