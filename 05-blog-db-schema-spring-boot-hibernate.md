@@ -2,22 +2,31 @@
 
 ## let's refactor!!!!
 
-When writing applications, we tend to promote practices such as TDD that allow us to be confident when refactoring our applications. 
+When writing applications, we tend to promote practices such as TDD that allow us to be confident when refactoring our code. 
 What about our database? Should we be able to refactor our production database schema in a jiffy, just as easily as we would change a method name? May be not, but let's try to get there!
 
+## Setup
+
 Here we will discuss the various ways to update your database schema in production for a `Spring Boot` / `JPA` / `Hibernate` application in Java.
+All code samples are available in [this repository](https://github.com/michaelisvy/java-db-schema-updates).
 
-Show the initial setup: both h2 and mysql use spring.jpa.hibernate.ddl-auto=update
+To start with, we have a `Spring Boot` application that uses `H2` for `JUnit` tests and connects to `MySql` as its staging/production database. 
 
+```.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/addressBook
+spring.datasource.username=santa
+spring.datasource.password=secret
+spring.jpa.hibernate.ddl-auto=update
+```
+`application-mysql.properties`
 
-No matter which solution you prefer to use: you should always backup your database and plan for a rollback procedure before changing your database schema. It’s also good to practice your DB update and rollback procedure on a staging environment before making a production change.
-
-
-Creating a Database schema using Hibernate’s auto schema generation
+## Creating a Database schema using Hibernate’s auto schema generation
 Show application.properties and User class
 Note: DDL stands for Data Definition Language (https://en.wikipedia.org/wiki/Data_definition_language)
 Show create table happening at startup time
 How does it work? The User class has been read and its information (class name, attributes, relationships…) have been used to generate a simple database schema.
+
+No matter which solution you prefer to use: you should always backup your database and plan for a rollback procedure before changing your database schema. It’s also good to practice your DB update and rollback procedure on a staging environment before making a production change.
 
 Adding non conflicting changes to a database
 Add address table.
