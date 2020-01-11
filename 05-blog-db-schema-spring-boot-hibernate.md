@@ -21,7 +21,8 @@ spring.jpa.hibernate.ddl-auto=update
 
 The above example shows our `application-mysql.properties` file. 
 The first 3 lines explain how to connect to MySql. Our password is hardcoded for simplicity sake, but in real life we would store it in a secret.
-The last line shows that the MySql schema should be updated at application startup (to be discussed in the next section). 
+
+The last line shows that our MySql schema should be updated at application startup (to be discussed in the next paragraph). 
 
 
 ## Generating a Database schema from scratch
@@ -47,8 +48,6 @@ As seen in the previous section, we have configured database schema auto-update 
 spring.jpa.hibernate.ddl-auto=update
 ```
 
-`DDL` stands for [Data Definition Language](https://en.wikipedia.org/wiki/Data_definition_language).
-
 At application startup, the following query is run:
 
 ```sql
@@ -60,10 +59,10 @@ last_name varchar(255),
 primary key (id)) engine=InnoDB
 ```
 
-How does it work? At startup time, Hibernate parses the `User` class and generates a table based on the information it found (class name, attributes, annotations…).
-A `create table` query is generated based on your database's `dialect`.
+How does it work? At startup time, Hibernate parses the `User` class and generates a table based on the information it found (class name, attribute names and types, annotations…).
+A `create table` query is generated based on our database's `dialect`.
 
-Our application does not specify any dialect in its configuration because it relies on the default one. However, we can see the dialect used in the application startup logs:
+Our application does not specify any dialect in its configuration because it relies on the default one. We can see the dialect used in the application startup logs:
 ```
 HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
 ```
@@ -83,7 +82,7 @@ public class Address {
 }
 ```
 
-We are also adding a relationship from User to Address as follows:
+We are also adding a relationship from `User` to `Address` as follows:
 
 ```java
 @Entity @Data
@@ -121,16 +120,16 @@ create table address (
 
 Our non-conflicting change has been added as expected. 
 
-> Note: Never forget to backup your database and plan for a restore procedure before making a change in production. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
+It is fine to use `auto-update` even for a change in production. However, you should always backup your database and plan for a restore procedure. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
 
 ## Adding a conflicting change using Hibernate’s auto schema generation
-Let’s now consider that we would like to rename the address table into postal_address.
+Let’s now consider that we would like to rename the `address` table into `postal_address`.
 
-Doing such a change using Hibernate’s auto schema generation would create the following behaviour:
-Hibernate will ignore the existing table (address) and will create a new one called postal_address
-All data inside address will stay with address. In the future, all new data will be created inside (postal_address)
+Doing such a change using Hibernate’s `auto-update` would create the following behaviour:
+* Hibernate ignores the existing `address` table and creates a new one called `postal_address`
+* All data inside address stay with address. In the future, all new data will be created inside `postal_address`
 
-If you have an existing production database, the above behaviour is probably not what you’re after. 
+If you have an existing production database, the above behaviour is not what you’re after. 
 
 We now need to tweak our configuration so we still have auto-generation  for h2 (database used for JUnit Tests) and not for mysql (our staging / production database).
 
