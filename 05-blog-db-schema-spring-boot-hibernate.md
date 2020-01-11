@@ -24,7 +24,7 @@ The first 3 lines explain how to connect to MySql. Our password is hardcoded for
 The last line shows that the MySql schema should be updated at application startup (to be discussed in the next section). 
 
 
-## Creating a Database schema the simple way
+## Generating a Database schema from scratch
 
 At this stage, our application only has a single entity class called `User`.
 
@@ -49,19 +49,35 @@ spring.jpa.hibernate.ddl-auto=update
 
 `DDL` stands for [Data Definition Language](https://en.wikipedia.org/wiki/Data_definition_language).
 
-Show create table happening at startup time
-How does it work? The User class has been read and its information (class name, attributes, relationships…) have been used to generate a simple database schema.
+At application startup, the following query is run:
 
-No matter which solution you prefer to use: you should always backup your database and plan for a rollback procedure before changing your database schema. It’s also good to practice your DB update and rollback procedure on a staging environment before making a production change.
+```sql
+create table user (
+id integer not null auto_increment, 
+date_of_birth date, 
+first_name varchar(255), 
+last_name varchar(255), 
+primary key (id)) engine=InnoDB
+```
 
-Adding non conflicting changes to a database
+How does it work? At startup time, Hibernate parses the `User` class and generates a table based on the information it found (class name, attributes, annotations…).
+A `create table` query is generated based on your database's `dialect`.
+
+Our application does not specify any dialect in its configuration because it relies on the default one. However, we can see the dialect used in the application startup logs:
+```
+HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+```
+
+## Adding non conflicting changes to a database
 Add address table.
 Works well. Don’t forget to backup your database before making changes.
 Note: use of ForeignKey annotation.
 
 Show SQL generated (create table and alter table for constraint)
 
-Adding a conflicting change using Hibernate’s auto schema generation
+No matter which solution you prefer to use: you should always backup your database and plan for a rollback procedure before changing your database schema. It’s also good to practice your DB update and rollback procedure on a staging environment before making a production change.
+
+## Adding a conflicting change using Hibernate’s auto schema generation
 Let’s now consider that we would like to rename the address table into postal_address.
 
 Doing such a change using Hibernate’s auto schema generation would create the following behaviour:
@@ -86,7 +102,7 @@ RENAME TABLE address2 to address3
 Note: the above implies that you are able to take your application offline for a few minutes (so the database can be updated and the application redeployed). 
 
 
-Using Liquibase to rename a table
+## Using Liquibase to rename a table
  ALTER TABLE addressBook.address4 RENAME addressBook.address5
 
 Liquibase allows to keep track of database schema changes so you have a version number for each and every schema change that you make in your project lifecycle. 
