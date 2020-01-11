@@ -8,7 +8,7 @@ What about our database? Should we be able to refactor our production database s
 ## Setup
 
 Here we will discuss the various ways to update your database schema in production for a `Spring Boot` / `JPA` / `Hibernate` application in Java.
-All code samples are available in [this repository](https://github.com/michaelisvy/java-db-schema-updates).
+All code samples are available in [our dedicated github repository](https://github.com/michaelisvy/java-db-schema-updates).
 
 To start with, we have a `Spring Boot` application that uses `H2` for `JUnit` tests and connects to `MySql` as its staging/production database. 
 
@@ -68,14 +68,60 @@ Our application does not specify any dialect in its configuration because it rel
 HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
 ```
 
-## Adding non conflicting changes to a database
-Add address table.
-Works well. Don’t forget to backup your database before making changes.
-Note: use of ForeignKey annotation.
+## Adding a non-conflicting change to a database
+Let us now add the `Address` entity to our model.
 
-Show SQL generated (create table and alter table for constraint)
+```java
+@Data @Entity
+public class Address {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-No matter which solution you prefer to use: you should always backup your database and plan for a rollback procedure before changing your database schema. It’s also good to practice your DB update and rollback procedure on a staging environment before making a production change.
+    private String streetAddress;
+    //...
+}
+```
+
+We are also adding a relationship from User to Address as follows:
+
+```java
+@Entity @Data
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String firstName;
+    private String lastName;
+    private LocalDate dateOfBirth;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name="FK_USER_ID"))
+    private List<Address> addressList = new ArrayList<>();
+}
+```
+
+When the application starts (still in `auto-update` mode), Hibernate creates the `Address` table as follows:
+
+```sql
+create table address (
+       id integer not null auto_increment,
+        city varchar(255),
+        street_address varchar(255),
+        zip_code varchar(255),
+        user_id integer,
+        primary key (id)
+    ) engine=InnoDB
+
+ alter table address 
+       add constraint FK_USER_ID 
+       foreign key (user_id) 
+       references user (id)
+```
+
+Our non-conflicting change has been added as expected. 
+
+> Note: Never forget to backup your database and plan for a restore procedure before making a change in production. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
 
 ## Adding a conflicting change using Hibernate’s auto schema generation
 Let’s now consider that we would like to rename the address table into postal_address.
