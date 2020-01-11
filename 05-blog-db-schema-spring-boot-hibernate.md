@@ -2,8 +2,8 @@
 
 ## Let's refactor!!!!
 
-When writing applications, we tend to promote practices such as TDD that allow us to be confident when refactoring our code. 
-What about our database? Should we be able to refactor our production database schema in a jiffy, just as easily as we would change a method name? May be not, but let's try to get there!
+When writing applications, we tend to promote practices such as [TDD](https://en.wikipedia.org/wiki/Test-driven_development) that allow us to be confident when refactoring our code. 
+What about our database? Should we be able to refactor our production database schema in a jiffy, just as easily as we would change a method name? May be not exactly, but let's try to get there!
 
 ## Setup
 
