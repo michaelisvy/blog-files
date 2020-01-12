@@ -123,39 +123,58 @@ Our non-conflicting change has been added as expected.
 It is fine to use `auto-update` even for a change in production. However, you should always backup your database and plan for a restore procedure. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
 
 ## Adding a conflicting change
-Let’s now consider that we would like to rename the `address` table into `postal_address`.
+Let’s now consider that we would like to rename the `address` table into `postal_address`. We are adding the `@Table` annotation as follows:
 
-Doing such a change using Hibernate’s `auto-update` would create the following behaviour:
+```java
+@Data @Entity @Table(name="postal_address")
+public class Address {
+    //...
+}
+```
+
+Doing such a change using Hibernate’s `auto-update` feature would create the following behaviour:
 * Hibernate leaves aside the existing `address` table and creates a new one called `postal_address`
 * All data inside `address` stay with `address`. In the future, all new data will be created inside `postal_address`
 
-If you have an existing production database, the above behaviour is not what you’re after. 
-It is now time to disable Hibernate's auto-update feature: 
+If you have an existing production database, the above behaviour is *not* what you’re after. 
+Let's disable auto-schema generation: 
 
 ```.properties
 spring.jpa.hibernate.ddl-auto=validate
 ```
 
-> Note: at startup time, Hibernate will now `validate` that the database schema is in sync with our JPA/Hibernate mapping. 
+> Note: at startup time, Hibernate will now `validate` that the database schema is compatible with our `JPA/Hibernate` mapping. 
 
-Before updating your application, you just need to rename your table as follows:
-RENAME TABLE address2 to address3
+When starting the application in `staging`, we now see the following error:
+
+```java
+Caused by: org.hibernate.tool.schema.spi.SchemaManagementException: 
+Schema-validation: missing table [postal_address]
+	at org.hibernate.tool.schema.internal.AbstractSchemaValidator
+    .validateTable(AbstractSchemaValidator.java:121)
+```
+
+In order to fix this issue, we need to run the below `sql` query:
+```sql
+RENAME TABLE address to postal_address
+```
+
+Note: as usual, do not forget to backup your database before making any change in production!
 
 
-Note: the above implies that you are able to take your application offline for a few minutes (so the database can be updated and the application redeployed). 
-
-
-## Using Liquibase to rename a table
+## Using Liquibase for a conflicting change
  ALTER TABLE addressBook.address4 RENAME addressBook.address5
 
 Liquibase allows to keep track of database schema changes so you have a version number for each and every schema change that you make in your project lifecycle. 
 With Liquibase, renaming address into postal_address would work like this:
 
+```xml
 <databaseChangeLog  ...>
    <changeSet author="John" id="1.2">
        <renameTable oldTableName="address" newTableName="postal_address" />
    </changeSet>
 </databaseChangeLog>
+```
 
 Each change has a unique version number (referred to as `id` in the above example)
 
