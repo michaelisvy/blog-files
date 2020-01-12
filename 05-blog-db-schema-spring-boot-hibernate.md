@@ -155,7 +155,7 @@ Schema-validation: missing table [postal_address]
 ```
 
 In order to fix this issue, we need to run the below `sql` query:
-```sql
+```.sql
 RENAME TABLE address to postal_address
 ```
 
@@ -163,19 +163,61 @@ Note: as usual, do not forget to backup your database before making any change i
 
 
 ## Using Liquibase for a conflicting change
- ALTER TABLE addressBook.address4 RENAME addressBook.address5
 
-Liquibase allows to keep track of database schema changes so you have a version number for each and every schema change that you make in your project lifecycle. 
-With Liquibase, renaming address into postal_address would work like this:
+We've seen in the previous section that you can run an sql script and use the setting `ddl-auto=validate` when adding a conflicting change to your database (renaming a table, renaming a column, deleting a table etc). 
+
+You can also use a database migration tool such as [Liquibase](https://www.liquibase.org/) or [Flyway](https://flywaydb.org/). In this section, we will show how to work with `Liquibase` for that.
+
+`Liquibase` allows to keep track of database schema changes so you have a version number for each and every schema change that you make in your project lifecycle. 
+With `Liquibase`, we can rename `address` into `postal_address` using the below script:
 
 ```xml
 <databaseChangeLog  ...>
-   <changeSet author="John" id="1.2">
+   <changeSet author="Michael" id="1.2">
        <renameTable oldTableName="address" newTableName="postal_address" />
    </changeSet>
 </databaseChangeLog>
 ```
+(file `db.changelog-master.xml`)
 
-Each change has a unique version number (referred to as `id` in the above example)
+As you can notice:
+* Each change has a unique version number (set as `1,2` in our example)
+* The change author is tracked manually
 
-Database changelog table:
+`Liquibase` is seamlessly integrated into `Spring Boot`. You just need 2 configuration steps.
+
+1) pom.xml
+If you're using `Maven`, you just have to add the following dependency:
+```xml
+<dependency>
+   <groupId>org.liquibase</groupId>
+   <artifactId>liquibase-core</artifactId>
+</dependency>
+```
+(file pom.xml)
+
+2)  application-mysql.properties
+You can add the below lines into your `Spring Boot` configuration file. 
+
+```.properties
+spring.liquibase.enabled=true
+spring.liquibase.change-log=classpath:/db/changelog/db.changelog-master.xml
+```
+
+When starting our application, we can see in the logs that our changes have been made:
+```
+liquibase.changelog.ChangeSet            : Table address renamed to postal_address
+```
+
+Liquibase also creates a table called `databasechangelog` and tracks all changes inside it:
+
+liquibase.executor.jvm.JdbcExecutor      : INSERT INTO addressBook.DATABASECHANGELOG (ID, AUTHOR, FILENAME, ..., `DESCRIPTION`, ...) 
+VALUES ('1.3', 'Michael', 'classpath:/db/changelog/db.changelog-master.xml', ..., 'renameTable newTableName=postal_address, oldTableName=address', ...)
+
+On the long term, we will be able to track all changes happening to our database inside this table.
+
+## Going further with Liquibase
+
+## Conclusion
+we are a startup. Big companies: might not be able to update production tables
+The above also implies that you are able to take your application offline for a few minutes. Would be interesting to get feedback on how it's done for apps that need to be up 24/7.
