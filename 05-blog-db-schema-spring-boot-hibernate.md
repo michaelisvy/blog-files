@@ -213,8 +213,10 @@ liquibase.changelog.ChangeSet            : Table address renamed to postal_addre
 
 Liquibase also creates a table called `databasechangelog` and tracks all changes inside it:
 
+```
 liquibase.executor.jvm.JdbcExecutor      : INSERT INTO addressBook.DATABASECHANGELOG (ID, AUTHOR, FILENAME, ..., `DESCRIPTION`, ...) 
 VALUES ('1.3', 'Michael', 'classpath:/db/changelog/db.changelog-master.xml', ..., 'renameTable newTableName=postal_address, oldTableName=address', ...)
+```
 
 On the long term, we will be able to track all changes happening to our database inside this table.
 
@@ -228,6 +230,7 @@ This is well-explained in [Baeldung's blog series](https://www.baeldung.com/liqu
 
 
 ## Conclusion
-We hope our blog has given you a better understanding of database migrations with Java / Spring Boot / Hibernate.
-
 The above implies that you are able to take your application offline for a few minutes when updating your application in production. It would be interesting to get feedback on how it is done for high-available applications.
+
+Thanks for reading our blog and we hope our blog has given you a better understanding of database migrations with `Java` / `Spring Boot` / `Hibernate`.
+
