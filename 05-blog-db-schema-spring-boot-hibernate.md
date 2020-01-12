@@ -187,6 +187,7 @@ As you can notice:
 `Liquibase` is seamlessly integrated into `Spring Boot`. You just need 2 configuration steps.
 
 1) pom.xml
+
 If you're using `Maven`, you just have to add the following dependency:
 ```xml
 <dependency>
@@ -197,6 +198,7 @@ If you're using `Maven`, you just have to add the following dependency:
 (file pom.xml)
 
 2)  application-mysql.properties
+
 You can add the below lines into your `Spring Boot` configuration file. 
 
 ```.properties
@@ -218,6 +220,14 @@ On the long term, we will be able to track all changes happening to our database
 
 ## Going further with Liquibase
 
+Our blog only shows basic features of `Liquibase`. You can explore it further and see how it handles rollback procedures.
+In our examples, `Spring` runs `Liquibase` changes (if any) at startup time. 
+
+You can also decide to disable this behaviour and use the `Liquibase Maven plugin` to run your changes using commands such as `mvn liquibase:generateChangeLog`. 
+This is well-explained in [Baeldung's blog series](https://www.baeldung.com/liquibase-refactor-schema-of-java-app).
+
+
 ## Conclusion
-we are a startup. Big companies: might not be able to update production tables
-The above also implies that you are able to take your application offline for a few minutes. Would be interesting to get feedback on how it's done for apps that need to be up 24/7.
+We hope our blog has given you a better understanding of database migrations with Java / Spring Boot / Hibernate.
+
+The above implies that you are able to take your application offline for a few minutes when updating your application in production. It would be interesting to get feedback on how it is done for high-available applications.
