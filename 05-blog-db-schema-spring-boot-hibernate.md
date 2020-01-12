@@ -122,23 +122,21 @@ Our non-conflicting change has been added as expected.
 
 It is fine to use `auto-update` even for a change in production. However, you should always backup your database and plan for a restore procedure. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
 
-## Adding a conflicting change using Hibernate’s auto schema generation
+## Adding a conflicting change
 Let’s now consider that we would like to rename the `address` table into `postal_address`.
 
 Doing such a change using Hibernate’s `auto-update` would create the following behaviour:
-* Hibernate ignores the existing `address` table and creates a new one called `postal_address`
-* All data inside address stay with address. In the future, all new data will be created inside `postal_address`
+* Hibernate leaves aside the existing `address` table and creates a new one called `postal_address`
+* All data inside `address` stay with `address`. In the future, all new data will be created inside `postal_address`
 
 If you have an existing production database, the above behaviour is not what you’re after. 
+It is now time to disable Hibernate's auto-update feature: 
 
-We now need to tweak our configuration so we still have auto-generation  for h2 (database used for JUnit Tests) and not for mysql (our staging / production database).
-
-H2:
-spring.jpa.hibernate.ddl-auto=update
-
-Mysql:
+```.properties
 spring.jpa.hibernate.ddl-auto=validate
+```
 
+> Note: at startup time, Hibernate will now `validate` that the database schema is in sync with our JPA/Hibernate mapping. 
 
 Before updating your application, you just need to rename your table as follows:
 RENAME TABLE address2 to address3
