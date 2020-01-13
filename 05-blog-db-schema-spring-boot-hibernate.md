@@ -3,7 +3,7 @@
 ## Let's refactor!!!!
 
 When writing applications, we tend to promote practices such as [TDD](https://en.wikipedia.org/wiki/Test-driven_development) that allow us to be confident when refactoring our code. 
-What about our database? Should we be able to refactor our production database schema in a jiffy, just as easily as we would change a method name? May be not exactly, but let's try to get there!
+What about our database? Should we be able to refactor our production database schema in a jiffy, just as easily as we would change a method name? Let's see if we can get there!
 
 ## Setup
 
@@ -154,19 +154,22 @@ Schema-validation: missing table [postal_address]
     .validateTable(AbstractSchemaValidator.java:121)
 ```
 
-In order to fix this issue, we need to run the below `sql` query:
+In order to fix this issue, we need to use our database client in order to run a `rename` SQL query:
 ```.sql
-RENAME TABLE address to postal_address
+mysql -umichael -p  -- password will be prompted
+mysql> use addressBook; -- choose the database schema to be used
+
+mysql> RENAME TABLE address to postal_address;
 ```
 
 Note: as usual, do not forget to backup your database before making any change in production!
 
 
-## Using Liquibase for a conflicting change
+## Using Liquibase for database schema change management
 
 We've seen in the previous section that you can run an sql script and use the setting `ddl-auto=validate` when adding a conflicting change to your database (renaming a table, renaming a column, deleting a table etc). 
 
-You can also use a database migration tool such as [Liquibase](https://www.liquibase.org/) or [Flyway](https://flywaydb.org/). In this section, we will show how to work with `Liquibase` for that.
+You can also use a database schema change management tool such as [Liquibase](https://www.liquibase.org/) or [Flyway](https://flywaydb.org/). In this section, we will show how to work with `Liquibase`.
 
 `Liquibase` allows to keep track of database schema changes so you have a version number for each and every schema change that you make in your project lifecycle. 
 With `Liquibase`, we can rename `address` into `postal_address` using the below script:
@@ -222,17 +225,14 @@ On the long term, we will be able to track all changes happening to our database
 
 ## Going further with Liquibase
 
-Our blog only shows basic features of `Liquibase`. You can explore it further and see how it handles rollback procedures.
-In our examples, `Spring` runs `Liquibase` changes (if any) at startup time. 
-
-You can also decide to disable this behaviour and use the `Liquibase Maven plugin` to run your changes using commands such as `mvn liquibase:generateChangeLog`. 
-This is well-explained in [Baeldung's blog series](https://www.baeldung.com/liquibase-refactor-schema-of-java-app).
-
+Our blog only shows basic features of `Liquibase`. You can explore Baeldung's excellent blog series [here](https://www.baeldung.com/liquibase-refactor-schema-of-java-app) and [here](https://www.baeldung.com/liquibase-rollback) in order to understand how to work with `Liquibase`'s Maven plugin and rollback procedures.
 
 ## Conclusion
 We have seen that your database schema changes can be handled using `Hibernate`'s auto-update feature (non-conflicting changes only), by running `sql` queries manually or by using a database migration tool such as `Liquibase`. 
 If you are working on a simple application, you might be happy with auto-update and manual `sql` queries only. 
 If you are making changes to your schema on a regular basis and would like to be able to track your changes, `Liquibase` will be a better option for you.
+
+
 The above implies that you are able to take your application offline for a few minutes when updating your application in production. It would be interesting to get feedback on how it is done for high-available applications.
 
 Thanks for reading our blog and we hope our blog has given you a better understanding of database migrations with `Java` / `Spring Boot` / `Hibernate`.
