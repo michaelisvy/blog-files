@@ -178,10 +178,10 @@ With `Liquibase`, we can rename `address` into `postal_address` using the below 
    </changeSet>
 </databaseChangeLog>
 ```
-(file `db.changelog-master.xml`)
+`1.2-changelog-rename-table.xml`
 
 As you can notice:
-* Each change has a unique version number (set as `1,2` in our example)
+* Each change has a unique version number (set as `1.2` in our example)
 * The change author is tracked manually
 
 `Liquibase` is seamlessly integrated into `Spring Boot`. You just need 2 configuration steps.
@@ -203,7 +203,7 @@ You can add the below lines into your `Spring Boot` configuration file.
 
 ```.properties
 spring.liquibase.enabled=true
-spring.liquibase.change-log=classpath:/db/changelog/db.changelog-master.xml
+spring.liquibase.change-log=classpath:/db/changelog/1.2-changelog-rename-table.xml
 ```
 
 When starting our application, we can see in the logs that our changes have been made:
@@ -215,7 +215,7 @@ Liquibase also creates a table called `databasechangelog` and tracks all changes
 
 ```
 liquibase.executor.jvm.JdbcExecutor      : INSERT INTO addressBook.DATABASECHANGELOG (ID, AUTHOR, FILENAME, ..., `DESCRIPTION`, ...) 
-VALUES ('1.3', 'Michael', 'classpath:/db/changelog/db.changelog-master.xml', ..., 'renameTable newTableName=postal_address, oldTableName=address', ...)
+VALUES ('1.2', 'Michael', 'classpath:/db/changelog/1.2-changelog-rename-table.xml', ..., 'renameTable newTableName=postal_address, oldTableName=address', ...)
 ```
 
 On the long term, we will be able to track all changes happening to our database inside this table.
@@ -230,6 +230,9 @@ This is well-explained in [Baeldung's blog series](https://www.baeldung.com/liqu
 
 
 ## Conclusion
+We have seen that your database schema changes can be handled using `Hibernate`'s auto-update feature (non-conflicting changes only), by running `sql` queries manually or by using a database migration tool such as `Liquibase`. 
+If you are working on a simple application, you might be happy with auto-update and manual `sql` queries only. 
+If you are making changes to your schema on a regular basis and would like to be able to track your changes, `Liquibase` will be a better option for you.
 The above implies that you are able to take your application offline for a few minutes when updating your application in production. It would be interesting to get feedback on how it is done for high-available applications.
 
 Thanks for reading our blog and we hope our blog has given you a better understanding of database migrations with `Java` / `Spring Boot` / `Hibernate`.
