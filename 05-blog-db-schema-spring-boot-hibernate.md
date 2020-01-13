@@ -228,12 +228,13 @@ On the long term, we will be able to track all changes happening to our database
 Our blog only shows basic features of `Liquibase`. You can explore Baeldung's excellent blog series [here](https://www.baeldung.com/liquibase-refactor-schema-of-java-app) and [here](https://www.baeldung.com/liquibase-rollback) in order to understand how to work with `Liquibase`'s Maven plugin and rollback procedures.
 
 ## Conclusion
-We have seen that your database schema changes can be handled using `Hibernate`'s auto-update feature (non-conflicting changes only), by running `sql` queries manually or by using a database migration tool such as `Liquibase`. 
+We have seen that your database schema changes can be handled:
+* Using `Hibernate`'s auto-update feature (non-conflicting changes only)
+* By running `sql` queries manually 
+* by using a database migration tool such as `Liquibase`. 
+
 If you are working on a simple application, you might be happy with auto-update and manual `sql` queries only. 
 If you are making changes to your schema on a regular basis and would like to be able to track your changes, `Liquibase` will be a better option for you.
-
-
-The above implies that you are able to take your application offline for a few minutes when updating your application in production. It would be interesting to get feedback on how it is done for high-available applications.
 
 Thanks for reading our blog and we hope our blog has given you a better understanding of database migrations with `Java` / `Spring Boot` / `Hibernate`.
 
