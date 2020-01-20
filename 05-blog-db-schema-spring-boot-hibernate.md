@@ -1,5 +1,8 @@
 # Database schema changes with Spring Boot and Hibernate
 
+## Target audience
+This article has been written for people who have at least basic understanding of the Java/Spring/Spring Boot/Hibernate ecosystem. 
+
 ## Let's refactor!!!!
 
 When writing applications, we tend to promote practices such as [TDD](https://en.wikipedia.org/wiki/Test-driven_development) that allow us to be confident when refactoring our code. 
@@ -62,7 +65,7 @@ primary key (id)) engine=InnoDB
 How does it work? At startup time, Hibernate parses the `User` class and generates a table based on the information it found (class name, attribute names and types, annotations…).
 A `create table` query is generated based on our database's `dialect`.
 
-Our application does not specify any dialect in its configuration because it relies on the default one. We can see the dialect used in the application startup logs:
+Inside our `pom.xml` we have configured the `mysql` jdbc driver as a dependency. Spring Boot then assumes that we use the default `MySql` dialect as shown in the logs:
 ```
 HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
 ```
@@ -120,7 +123,21 @@ create table address (
 
 Our non-conflicting change has been added as expected. 
 
-It is fine to use `auto-update` even for a change in production. However, you should always backup your database and plan for a restore procedure. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
+## Should use use Hibernate's auto-update feature on a production database?
+It is fine to use it for `development` and staging `databases`. 
+However, the Hibernate team recommends that you should be more cautious when working with a `production` database. 
+In their [official documentation](https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#schema-generation) they say:
+```
+Although the automatic schema generation is very useful for testing and prototyping purposes, in a production environment, it’s much more flexible to manage the schema using incremental migration scripts.
+```
+
+Here is the flow that we typically use in our teams:
+* For Unit tests, the whole database is created in memory at startup time (`create-drop`).
+* For tests on a local development environment, we run `update` and save all the update scripts that have been generated (such as for the Address table in our example). 
+* In a staging environment, we use `validate`. We try to replicate the behaviour that we will have in production. We therefore update our schema manually using the scripts collected in our local dev environment. 
+* In production: we add a backup/restore procedure.
+
+you should always backup your database and plan for a restore procedure. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
 
 ## Adding a conflicting change
 Let’s now consider that we would like to rename the `address` table into `postal_address`. We are adding the `@Table` annotation as follows:
@@ -187,11 +204,8 @@ As you can notice:
 * Each change has a unique version number (set as `1.2` in our example)
 * The change author is tracked manually
 
-`Liquibase` is seamlessly integrated into `Spring Boot`. You just need 2 configuration steps.
+`Liquibase` is seamlessly integrated into `Spring Boot`. When using Maven, You just need to declare your `liquibase-core` dependency in your `pom.xml` and Liquibase is automagically used at startup time. 
 
-1) pom.xml
-
-If you're using `Maven`, you just have to add the following dependency:
 ```xml
 <dependency>
    <groupId>org.liquibase</groupId>
@@ -200,12 +214,9 @@ If you're using `Maven`, you just have to add the following dependency:
 ```
 (file pom.xml)
 
-2)  application-mysql.properties
-
-You can add the below lines into your `Spring Boot` configuration file. 
+If you need to customise the default configuration (as we do in our example), you can do so inside Spring Boot's configuration file (called `application.properties` in our example):
 
 ```.properties
-spring.liquibase.enabled=true
 spring.liquibase.change-log=classpath:/db/changelog/1.2-changelog-rename-table.xml
 ```
 
