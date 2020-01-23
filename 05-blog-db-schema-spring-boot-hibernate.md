@@ -1,12 +1,13 @@
 # Database schema changes with Spring Boot and Hibernate
 
 ## Target audience
-This article has been written for people who have at least basic understanding of the Java/Spring/Spring Boot/Hibernate ecosystem. 
+This article has been written for people who have at least basic understanding of Java and its most common backend frameworks (Spring Boot, Spring, Hibernate...). 
 
-## Let's refactor!!!!
+## Introduction
 
-When writing applications, we tend to promote practices such as [TDD](https://en.wikipedia.org/wiki/Test-driven_development) that allow us to be confident when refactoring our code. 
-What about our database? Should we be able to refactor our production database schema in a jiffy, just as easily as we would change a method name? Let's see if we can get there!
+The Java ecosystem gives you a lot of tools to magically update your database schemas. Should they be considered as development tools or should they also be used in production? 
+In this first article, we will focus on general best practices and Hibernate's auto-schema generation feature. We will explain what we've learned from it and where it is suitable to be used.
+In a subsequent article (to be published soon), we will discuss how database schema changes can be done with a database migration tool such as Liquibase.
 
 ## Setup
 
