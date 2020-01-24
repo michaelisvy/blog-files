@@ -59,7 +59,13 @@ As seen in the previous section, we have configured database schema auto-update 
 spring.jpa.hibernate.ddl-auto=update
 ```
 
-At application startup, the following query is run:
+Let us run our `JUnit` test suite:
+
+```
+mvn clean test
+```
+
+In the logs, we can see that the following database query has been run:
 
 ```sql
 create table user (
@@ -70,15 +76,29 @@ last_name varchar(255),
 primary key (id)) engine=InnoDB
 ```
 
-How does it work? At startup time, `Hibernate` parses the `User` class and generates a table based on the information it found (class name, attribute names and types, annotations…).
-A `create table` query is generated based on our database's `dialect`.
+How does it work? At startup time, `Hibernate` parses all classes that have been decorated with the `@Entity` annotation. It then scans the `User` class and generates an `SQL` table creation query.
+The table name, column names, types etc are based on the information found in the User class (class name, attribute names and types, annotations…).
 
-Inside our `pom.xml` we have configured the `mysql` jdbc driver as a dependency. `Spring Boot` then assumes that we use the default `MySql` dialect as shown in the logs:
+### Starting the application one more time
+
+The `addressBook` database schema has been generated and it contains the `User` table. 
+Which behaviour should we expect when starting the application one more time?
+When running the tests one more time, Hibernate compares the class `User` against the table `user`. It then sees that class and table are in sync and does not make any further changes. 
+
+
+
+### Which SQL??
+
+While SQL looks similar when working with various database providers, there is no such thing as [completely interoperable SQL](https://en.wikipedia.org/wiki/SQL#Interoperability_and_standardization).
+There are nuances when working with databases when it comes to dates, string concatenation etc. 
+Hibernate elegantly abstracts the SQL differences by using dialects.
+
+Inside our `pom.xml` we have configured the `mysql` jdbc driver as a dependency for MySql 8. `Spring Boot` then assumes that we use the default `MySql 8` dialect and configures `Hibernate` accordingly as shown in the startup logs:
 ```
 HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
 ```
 
-## Adding a non-conflicting change to a database
+## Adding a change to an existing database
 Let us now add the `Address` entity to our model.
 
 ```java
