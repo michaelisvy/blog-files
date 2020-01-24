@@ -1,20 +1,18 @@
 # Database schema changes with Spring Boot and Hibernate
 
 ## Target audience
-This article has been written for people who have at least basic understanding of `Java` and its most common backend frameworks (`Spring Boot`, `Spring`, `Hibernate`...). All examples are using MySql and can easily be migrated to a different relational database.
+This article has been written for people who have at least basic understanding of `Java` and its most common backend frameworks (`Spring Boot`, `Spring`, `Hibernate`...). All examples are using `MySql` and can easily be migrated to a different relational database.
 
 ## Introduction
 
-The Java ecosystem gives you a lot of tools to magically update your database schemas. Should they be considered as development tools or should they also be used in production? 
+The Java ecosystem gives you a lot of tools to magically update your database schemas. Should they be considered as development tools or are they predicable enough to be used with a production database? 
 In this first article, we will focus on general best practices and `Hibernate`'s auto-schema generation feature. We will explain what we've learned from it and where it is suitable to be used.
 In a subsequent article (to be published soon), we will discuss how database schema changes can be done with a database migration tool such as `Liquibase`.
+All code samples are available in [our dedicated github repository](https://github.com/michaelisvy/java-db-schema-updates).
 
 ## Setup
 
-Here we will discuss the various ways to update your database schema in production for a `Spring Boot` / `JPA` / `Hibernate` application in Java.
-All code samples are available in [our dedicated github repository](https://github.com/michaelisvy/java-db-schema-updates).
-
-Let's first create a new database schema using the `MySql` command-line client:
+Let's first create a new database schema called `addressBook` using the `MySql` command-line client:
 
 ```
 >mysql -u santa -p
@@ -24,7 +22,7 @@ Query OK, 1 row affected (0.12 sec)
 ```
 
 
-Let's now open our application. We have a `Spring Boot` application that uses `MySql` as its staging/production database. 
+Let's now open our Java application. It uses `Spring Boot` and `MySql` has been configured inside `application.properties`: 
 
 ```.properties
 spring.datasource.url=jdbc:mysql://localhost:3306/addressBook
@@ -33,10 +31,9 @@ spring.datasource.password=secret
 spring.jpa.hibernate.ddl-auto=update
 ```
 
-The above example shows our `application.properties` file. 
-The first 3 lines explain how to connect to MySql. Our password is hardcoded for simplicity sake, but in real life we would store it in a secret.
+The first 3 lines explain how to connect to `MySql`. Our password is hardcoded for simplicity sake, but in real life we would store it in a secret.
 
-The last line shows that our MySql schema should be updated at application startup (to be discussed in the next paragraph). 
+The last line shows that our `MySql` schema should be updated at application startup (to be discussed in the next paragraph). 
 
 
 ## Generating a Database schema from scratch
