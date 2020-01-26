@@ -1,7 +1,7 @@
-# Database schema changes with Spring Boot and Hibernate
+# Database schema changes with Hibernate and Spring Boot
 
 ## Target audience
-This article has been written for people who have at least basic understanding of `Java` and its most common backend frameworks (`Spring Boot`, `Spring`, `Hibernate`...). All examples are using `MySql` and can easily be migrated to a different relational database.
+This article has been written for people who have at least basic understanding of `Java` and its most common backend frameworks ( `Hibernate`, `Spring Boot`...). All examples are using `MySql` and can easily be migrated to a different relational database.
 
 ## Introduction
 
@@ -188,27 +188,25 @@ In staging and production, we always backup our database and plan for a restore 
 > Note: you can see that the suggested processes are the same for `staging` and `production` environments. Breaking our application's `staging` environment should not be a big deal. However it is an opportunity to do a dry run before updating our database schema in production.
 
 ## Adding a conflicting change
-Let’s now consider that we would like to rename the `address` table into `postal_address`. We are adding the `@Table` annotation as follows:
+A `conflicting change` is a change that *involves renaming a table or column*.
+Let’s consider that the name `address` is becoming ambiguous in our schema and we would like to rename the `address` table into `postal_address`. Let's change the name of the `Address` class as follows:
 
 ```java
-@Data @Entity @Table(name="postal_address")
-public class Address {
+@Data @Entity
+public class PostalAddress {
     //...
 }
 ```
 
-Doing such a change using Hibernate’s `auto-update` feature would create the following behaviour:
-* Hibernate leaves aside the existing `address` table and creates a new one called `postal_address`
-* All data inside `address` stay with `address`. In the future, all new data will be created inside `postal_address`
+Hibernate’s `auto-update` feature does not work well with conflicting changes. If we restart our application in `update` mode, it creates a new table called `postal_address` and still keeps the existing `address` table.
 
-If you have an existing production database, the above behaviour is *not* what you’re after. 
-Let's disable auto-schema generation: 
+Let's disable auto-schema `update` and use `validate` instead as explained in the previous paragraph: 
 
 ```.properties
 spring.jpa.hibernate.ddl-auto=validate
 ```
 
-When starting the application in `staging`, we now see the following error:
+When starting the application, Hibernate would detect that our classes are not in sync with the database schema and would throw the following exception:
 
 ```java
 Caused by: org.hibernate.tool.schema.spi.SchemaManagementException: 
@@ -217,24 +215,23 @@ Schema-validation: missing table [postal_address]
     .validateTable(AbstractSchemaValidator.java:121)
 ```
 
-In order to fix this issue, we need to use our database client in order to run a `rename` SQL query:
+In order to avoid this issue we need to stop the application and launch the below script before the new version of the application is deployed:
 ```.sql
-mysql -umichael -p  -- password will be prompted
+mysqldump --defaults-file="/var/.../extraparams.cnf"  ... 
+>mysql -u santa -p
+Enter password: ******
 mysql> use addressBook; -- choose the database schema to be used
-
 mysql> RENAME TABLE address to postal_address;
 ```
 
-Note: as usual, do not forget to backup your database before making any change in production!
+We have now made our table name change and deploy the updated version of the application.
+
+The above assumes that we are able to take our application offline for a few minutes. It is extremely hard to make a conflicting change to a database while it's running in production. 
 
 ## Conclusion
-We have seen that your database schema changes can be handled:
-* Using `Hibernate`'s auto-update feature (non-conflicting changes only)
-* By running `sql` queries manually 
-* by using a database migration tool such as `Liquibase`. 
+We have seen that `Hibernate`'s `auto-update` is a great development tool and should *not* be used in staging and production. 
+In staging and production, we have seen that you can run your sql queries manually. 
+In our follow-up blog (to be published by March 1st 2020), we will discuss how to use `Liquibase` as a database schema migration tool for your staging and production environments.
 
-If you are working on a simple application, you might be happy with auto-update and manual `sql` queries only. 
-If you are making changes to your schema on a regular basis and would like to be able to track your changes, `Liquibase` will be a better option for you.
-
-Thanks for reading our blog and we hope our blog has given you a better understanding of database migrations with `Java` / `Spring Boot` / `Hibernate`.
+Thanks for reading our blog!
 
