@@ -88,7 +88,7 @@ When running the tests one more time, Hibernate compares the class `User` agains
 
 
 
-### Which SQL??
+### Which SQL?
 
 While SQL looks similar when working with various database providers, there is no such thing as [completely interoperable SQL](https://en.wikipedia.org/wiki/SQL#Interoperability_and_standardization).
 There are nuances when working with databases when it comes to dates, string concatenation etc. 
@@ -154,15 +154,23 @@ create table address (
 
 The `address` table and its relationship to `user` have been added as expected. 
 While `Hibernate`'s `auto-update` works fine most of the time, it is quite magic and error-prone. Speaking from experience, it is common to rename a class or a field and forget about the fact that a new table or column will be generated next time the application is deployed. 
+
 In the next section we will discuss about best practices and safeguards when making a change in your production database schema.
 
-## Should use use Hibernate's auto-update feature on a production database?
+## Schema auto-update in production?
+
+|  		 | JUnit tests    | Local webapp | Staging webapp  | Production webapp |
+| :------------- | :------------- | :----------: | -----------:    | -----------: |
+|Database	 |  H2		  | MySql        | MySql           | MySql        |
+|Hibernate auto-update setting | create-drop    | update       | validate     | validate     |
+|DB backup | none    | none       | mysqldump     | mysqldump     |
+
 It is fine to use it for `development` and staging `databases`. 
 However, the Hibernate team recommends that you should be more cautious when working with a `production` database. 
 In their [official documentation](https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#schema-generation) they say:
-```
-Although the automatic schema generation is very useful for testing and prototyping purposes, in a production environment, it’s much more flexible to manage the schema using incremental migration scripts.
-```
+
+> Although the automatic schema generation is very useful for testing and prototyping purposes, in a production environment, it’s much more flexible to manage the schema using incremental migration scripts.
+
 
 Here is the flow that we typically use in our teams:
 * For Unit tests, the whole database is created in memory at startup time (`create-drop`).
