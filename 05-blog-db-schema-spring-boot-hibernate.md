@@ -159,22 +159,23 @@ In the next section we will discuss about best practices and safeguards when mak
 
 ## Schema auto-update in production?
 
+In their [official documentation](https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#schema-generation), the `Hibernate` team recommends the below:
+
+> Although the automatic schema generation is very useful for testing and prototyping purposes, in a production environment, it’s much more flexible to manage the schema using incremental migration scripts.
+
+Here is the approach that we commonly use:
+
+
 |  		 | JUnit tests    | Local webapp | Staging webapp  | Production webapp |
 | :------------- | :------------- | :----------: | -----------:    | -----------: |
 |Database	 |  H2		  | MySql        | MySql           | MySql        |
 |Hibernate auto-update setting | create-drop    | update       | validate     | validate     |
 |DB backup | none    | none       | mysqldump     | mysqldump     |
 
-It is fine to use it for `development` and staging `databases`. 
-However, the Hibernate team recommends that you should be more cautious when working with a `production` database. 
-In their [official documentation](https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#schema-generation) they say:
-
-> Although the automatic schema generation is very useful for testing and prototyping purposes, in a production environment, it’s much more flexible to manage the schema using incremental migration scripts.
 
 
-Here is the flow that we typically use in our teams:
 * For Unit tests, the whole database is created in memory at startup time (`create-drop`).
-* For tests on a local development environment, we run `update` and save all the update scripts that have been generated (such as for the Address table in our example). 
+* For tests on a local development environment, we run `update` and save all the update scripts that have been generated (such as for the Address table in our example). For some of our applications, we consider that it is fine to use `H2` instead of `MySql` so developers do not need to install and start `Mysql` on their local environment.
 * In a staging environment, we use `validate`. We try to replicate the behaviour that we will have in production. We therefore update our schema manually using the scripts collected in our local dev environment. 
 * In production: we add a backup/restore procedure.
 
