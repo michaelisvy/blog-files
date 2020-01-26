@@ -176,14 +176,16 @@ Here is the approach that we commonly use:
 
 * For Unit tests, we use `H2`. The whole database is created in memory at startup time and deleted after all tests have been run (`create-drop`).
 * When running a local web application (on `localhost`), we run `update` and copy from the logs all the update scripts that have been generated (such as for the Address table in our example). We will reuse those scripts for our `staging` and `production` environments.
-* In a `staging` environment, we use the following setup:
+* In `staging` and `production` environments, we use the following setup:
 ```.properties
 spring.jpa.hibernate.ddl-auto=validate
 ```
+At startup time, Hibernate `validate`s that the database schema is compatible with our `JPA/Hibernate` mapping. In case any class or attribute is not mapped properly, `Hibernate` throws an exception and the application does not start. 
 We try to replicate the behaviour that we will have in production. We therefore update our schema manually using the scripts collected in our local dev environment. 
-* In production: we add a backup/restore procedure.
 
-you should always backup your database and plan for a restore procedure. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
+In staging and production, we always backup our database and plan for a restore procedure. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
+
+> Note: you can see that the suggested processes are the same for `staging` and `production` environments. Breaking our application's `staging` environment should not be a big deal. However it is an opportunity to do a dry run before updating our database schema in production.
 
 ## Adding a conflicting change
 Let’s now consider that we would like to rename the `address` table into `postal_address`. We are adding the `@Table` annotation as follows:
@@ -205,8 +207,6 @@ Let's disable auto-schema generation:
 ```.properties
 spring.jpa.hibernate.ddl-auto=validate
 ```
-
-> Note: at startup time, Hibernate will now `validate` that the database schema is compatible with our `JPA/Hibernate` mapping. 
 
 When starting the application in `staging`, we now see the following error:
 
