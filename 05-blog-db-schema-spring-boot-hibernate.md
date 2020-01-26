@@ -174,9 +174,13 @@ Here is the approach that we commonly use:
 
 
 
-* For Unit tests, the whole database is created in memory at startup time (`create-drop`).
-* For tests on a local development environment, we run `update` and save all the update scripts that have been generated (such as for the Address table in our example). For some of our applications, we consider that it is fine to use `H2` instead of `MySql` so developers do not need to install and start `Mysql` on their local environment.
-* In a staging environment, we use `validate`. We try to replicate the behaviour that we will have in production. We therefore update our schema manually using the scripts collected in our local dev environment. 
+* For Unit tests, we use `H2`. The whole database is created in memory at startup time and deleted after all tests have been run (`create-drop`).
+* When running a local web application (on `localhost`), we run `update` and copy from the logs all the update scripts that have been generated (such as for the Address table in our example). We will reuse those scripts for our `staging` and `production` environments.
+* In a `staging` environment, we use the following setup:
+```.properties
+spring.jpa.hibernate.ddl-auto=validate
+```
+We try to replicate the behaviour that we will have in production. We therefore update our schema manually using the scripts collected in our local dev environment. 
 * In production: we add a backup/restore procedure.
 
 you should always backup your database and plan for a restore procedure. In MySql, that can be done with the [mysqldump](https://www.thegeekstuff.com/2008/09/backup-and-restore-mysql-database-using-mysqldump/) command.
