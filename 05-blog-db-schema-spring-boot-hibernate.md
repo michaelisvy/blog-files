@@ -82,6 +82,7 @@ The table name, column names, types etc are based on the information found in th
 ### Starting the application one more time
 
 The `addressBook` database schema has been generated and it contains the `User` table. 
+
 Which behaviour should we expect when starting the application one more time?
 When running the tests one more time, Hibernate compares the class `User` against the table `user`. It then sees that class and table are in sync and does not make any further changes. 
 
@@ -109,6 +110,8 @@ public class Address {
     private Integer id;
 
     private String streetAddress;
+    private String zipCode;
+    private String city;
     //...
 }
 ```
@@ -131,7 +134,7 @@ public class User {
 }
 ```
 
-When the application starts (still in `auto-update` mode), Hibernate creates the `Address` table as follows:
+When the application starts (still in `auto-update` mode), Hibernate creates the `address` table as follows:
 
 ```sql
 create table address (
@@ -149,7 +152,9 @@ create table address (
        references user (id)
 ```
 
-Our non-conflicting change has been added as expected. 
+The `address` table and its relationship to `user` have been added as expected. 
+While `Hibernate`'s `auto-update` works fine most of the time, it is quite magic and error-prone. Speaking from experience, it is common to rename a class or a field and forget about the fact that a new table or column will be generated next time the application is deployed. 
+In the next section we will discuss about best practices and safeguards when making a change in your production database schema.
 
 ## Should use use Hibernate's auto-update feature on a production database?
 It is fine to use it for `development` and staging `databases`. 
