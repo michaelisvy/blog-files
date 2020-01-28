@@ -1,11 +1,12 @@
 # Database schema changes with Hibernate and Spring Boot
 
 ## Target audience
-This article has been written for people who have at least basic understanding of `Java` and its most common backend frameworks ( `Hibernate`, `Spring Boot`...). All examples are using `MySql` and can easily be migrated to a different relational database.
+This article has been written for readers who have experience with `Java`, `Hibernate` and `Spring Boot`. All examples use `MySql` and could easily be migrated to another relational database.
 
 ## Introduction
 
 The Java ecosystem gives you a lot of tools to magically update your database schemas. Should they be considered as development tools or are they predicable enough to be used with a production database? 
+
 In this first article, we will focus on general best practices and `Hibernate`'s auto-schema generation feature. We will explain what we've learned from it and where it is suitable to be used.
 In a subsequent article (to be published soon), we will discuss how database schema changes can be done with a database migration tool such as `Liquibase`.
 All code samples are available in [our dedicated github repository](https://github.com/michaelisvy/java-db-schema-updates).
@@ -22,7 +23,7 @@ Query OK, 1 row affected (0.12 sec)
 ```
 
 
-Let's now open our Java application. It uses `Spring Boot` and `MySql` has been configured inside `application.properties`: 
+Let's now open our [Java application](https://github.com/michaelisvy/java-db-schema-updates). It uses `Spring Boot` and `MySql` has been configured inside `application.properties`: 
 
 ```.properties
 spring.datasource.url=jdbc:mysql://localhost:3306/addressBook
