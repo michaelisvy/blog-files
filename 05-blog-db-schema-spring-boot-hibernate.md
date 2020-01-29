@@ -23,13 +23,18 @@ Query OK, 1 row affected (0.12 sec)
 ```
 
 
-Let's now open our [Java application](https://github.com/michaelisvy/java-db-schema-updates). It uses `Spring Boot` and `MySql` has been configured inside `application.properties`: 
+Let's now open our [Java application](https://github.com/michaelisvy/java-db-schema-updates). It uses `Spring Boot` and `MySql` has been configured inside `application.yml`: 
 
-```.properties
-spring.datasource.url=jdbc:mysql://localhost:3306/addressBook
-spring.datasource.username=santa
-spring.datasource.password=secret
-spring.jpa.hibernate.ddl-auto=update
+```.yml
+spring:
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://localhost:3306/addressBook
+    username: santa
+    password: secret
 ```
 
 The first 3 lines explain how to connect to `MySql`. Our password is hardcoded for simplicity sake, but in real life we would store it in a secret.
@@ -56,8 +61,8 @@ public class User {
 
 As seen in the previous section, we have configured database schema auto-update as follows:
 
-```.properties
-spring.jpa.hibernate.ddl-auto=update
+```.yml
+spring.jpa.hibernate.ddl-auto: update
 ```
 
 Let us run our `JUnit` test suite:
