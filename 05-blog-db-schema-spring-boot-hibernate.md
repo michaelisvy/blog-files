@@ -208,8 +208,8 @@ Hibernate’s `auto-update` feature does not work well with conflicting changes.
 
 Let's disable auto-schema `update` and use `validate` instead as explained in the previous paragraph: 
 
-```.properties
-spring.jpa.hibernate.ddl-auto=validate
+```.yml
+spring.jpa.hibernate.ddl-auto: validate
 ```
 
 When starting the application, Hibernate would detect that our classes are not in sync with the database schema and would throw the following exception:
