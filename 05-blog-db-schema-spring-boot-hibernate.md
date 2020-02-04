@@ -39,7 +39,7 @@ spring:
 
 The first 3 lines explain how to connect to `MySql`. Our password is hardcoded for simplicity sake, but in real life we would store it in a secret.
 
-The last line shows that our `MySql` schema should be updated at application startup (to be discussed in the next paragraph). 
+`ddl-auto: update` shows that our `MySql` schema should be updated at application startup (to be discussed in the next paragraph). 
 
 
 ## Generating a Database schema from scratch
