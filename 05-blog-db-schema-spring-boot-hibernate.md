@@ -240,3 +240,6 @@ In our follow-up blog (to be published by March 1st 2020), we will discuss how t
 
 Thanks for reading our blog!
 
+Michael Isvy.
+(thanks to my colleagues Nicolas Guignard, Liew Min Shan and many others on reviewing this article!).
+
